@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Net.Http;
 using System.Text;
 using System.Windows.Forms;
-using System.Xml.Linq;
-using Newtonsoft.Json;
 
 namespace BlockChainValleyFE
 {

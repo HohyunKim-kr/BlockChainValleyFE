@@ -16,5 +16,14 @@ namespace BlockChainValleyFE
         {
             InitializeComponent();
         }
+
+        private void btnViewMyTeamBoard_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("내 팀 게시판 보기 버튼 클릭됨!");
+
+            // TODO: 실제 팀 게시판 폼 열기 등 구현
+            // new TeamBoardForm().ShowDialog();
+        }
+
     }
 }

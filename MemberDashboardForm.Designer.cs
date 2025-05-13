@@ -38,6 +38,7 @@
             this.btnViewMyTeamBoard.Location = new System.Drawing.Point(30, 130);
             this.btnViewMyTeamBoard.Size = new System.Drawing.Size(200, 40);
             this.btnViewMyTeamBoard.Text = "내 팀 게시판";
+            this.btnViewMyTeamBoard.Click += new System.EventHandler(this.btnViewMyTeamBoard_Click); // ✅ 이 줄 추가
 
             // MemberDashboardForm
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
