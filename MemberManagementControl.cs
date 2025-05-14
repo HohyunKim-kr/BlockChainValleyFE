@@ -29,6 +29,11 @@ namespace BlockChainValleyFE
             btnSearch.Click += async (s, e) => await LoadMembersAsync(txtSearch.Text.Trim());
             btnSave.Click += async (s, e) => await SaveRolesAsync();
             dataGridMembers.CellDoubleClick += DataGridMembers_CellDoubleClick;
+            dataGridMembers.DataError += (s, e) =>
+            {
+                MessageBox.Show("역할 값이 잘못되었습니다. 콤보박스에서 정확한 값을 선택하세요.");
+                e.ThrowException = false;
+            };
         }
 
         private void RemovePlaceholderText(object sender, EventArgs e)
@@ -49,6 +54,35 @@ namespace BlockChainValleyFE
             }
         }
 
+        private string ConvertRoleIntToString(int role)
+{
+    switch (role)
+    {
+        case 0: return "Member";
+        case 1: return "TeamLeader";
+        case 2: return "President";
+        case 3: return "VicePresident";
+        default: return "Member";
+    }
+}
+
+        private int ConvertRoleStringToInt(string role)
+        {
+            switch (role)
+            {
+                case "Member": return 0;
+                case "TeamLeader": return 1;
+                case "President": return 2;
+                case "VicePresident": return 3;
+                default: return 0;
+            }
+        }
+
+        private bool IsValidRole(string role)
+        {
+            return role == "Member" || role == "TeamLeader" || role == "President" || role == "VicePresident";
+        }
+
         private async Task LoadMembersAsync(string filter = null)
         {
             using (var client = new HttpClient())
@@ -57,6 +91,11 @@ namespace BlockChainValleyFE
                 {
                     var response = await client.GetStringAsync("http://localhost:5233/api/Members");
                     members = JsonConvert.DeserializeObject<List<MemberDto>>(response);
+
+                    //foreach (var m in members)
+                    //{
+                    //    m.Role = ConvertRoleIntToString(m.Role);
+                    //}
 
                     if (!string.IsNullOrWhiteSpace(filter))
                     {
@@ -79,8 +118,9 @@ namespace BlockChainValleyFE
                     var comboCol = new DataGridViewComboBoxColumn
                     {
                         HeaderText = "역할",
-                        DataPropertyName = "Role",
+                        DataPropertyName = "RoleText", 
                         Name = "Role",
+                        DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton
                     };
                     comboCol.Items.AddRange("Member", "TeamLeader", "President", "VicePresident");
                     dataGridMembers.Columns.Add(comboCol);
@@ -100,12 +140,32 @@ namespace BlockChainValleyFE
                 {
                     foreach (DataGridViewRow row in dataGridMembers.Rows)
                     {
-                        if (row.DataBoundItem is MemberDto member && row.Cells["Role"].Value is string newRole)
+                        if (row.DataBoundItem is MemberDto member)
                         {
-                            member.Role = newRole;
-                            var json = JsonConvert.SerializeObject(member);
+                            var cellValue = row.Cells["Role"].Value?.ToString();
+                            if (string.IsNullOrWhiteSpace(cellValue) || !IsValidRole(cellValue))
+                                continue;
+
+                            var originalMember = new MemberDto
+                            {
+                                Id = member.Id,
+                                Name = member.Name,
+                                PhoneNumber = member.PhoneNumber,
+                                TelegramHandle = member.TelegramHandle,
+                                TwitterHandle = member.TwitterHandle,
+                                WalletAddress = member.WalletAddress,
+                                //Password = member.Password,
+                                Role = ConvertRoleStringToInt(cellValue)
+                            };
+
+                            var json = JsonConvert.SerializeObject(originalMember);
                             var content = new StringContent(json, Encoding.UTF8, "application/json");
-                            await client.PutAsync($"http://localhost:5233/api/Members/{member.Id}", content);
+                            var res = await client.PutAsync($"http://localhost:5233/api/Members/{member.Id}", content);
+
+                            if (!res.IsSuccessStatusCode)
+                            {
+                                MessageBox.Show($"저장 실패: {res.StatusCode} {await res.Content.ReadAsStringAsync()}");
+                            }
                         }
                     }
 

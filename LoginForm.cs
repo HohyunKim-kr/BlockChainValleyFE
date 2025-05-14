@@ -34,20 +34,40 @@ namespace BlockChainValleyFE
                 var json = JsonConvert.SerializeObject(loginDto);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync("http://localhost:5233/api/Auth/login", content);
+                var results = await response.Content.ReadAsStringAsync();
+
+                // ✅ 여기에서 응답 JSON 확인
+                MessageBox.Show("서버 응답 내용:\n" + results);
 
                 if (response.IsSuccessStatusCode)
                 {
                     var result = await response.Content.ReadAsStringAsync();
-                    var auth = JsonConvert.DeserializeObject<AuthResponseDto>(result);
+                    var auth = JsonConvert.DeserializeObject<AuthResponseDto>(result);                   
 
                     MessageBox.Show($"로그인 성공! 역할: {auth.role}");
+                    //Console.WriteLine("auth.role: " + auth.role);
+                    // 역할 분기
+                    if (!string.IsNullOrEmpty(auth.role))
+                    {
+                        var normalizedRole = auth.role.Trim().ToLower();
 
-                    if (auth.role == "President" || auth.role == "VicePresident")
-                        new AdminDashboardForm().ShowDialog();
+                        if (normalizedRole == "president" || normalizedRole == "vicepresident")
+                        {
+                            var adminForm = new AdminDashboardForm();
+                            adminForm.Show();
+                        }
+                        else
+                        {
+                            var memberForm = new MemberDashboardForm();
+                            memberForm.Show();
+                        }
+
+                        this.Hide(); // 로그인 폼 숨김
+                    }
                     else
-                        new MemberDashboardForm().ShowDialog();
-
-                    this.Hide();
+                    {
+                        MessageBox.Show("역할 정보가 없습니다.");
+                    }
                 }
                 else
                 {
@@ -55,5 +75,6 @@ namespace BlockChainValleyFE
                 }
             }
         }
+
     }
 }

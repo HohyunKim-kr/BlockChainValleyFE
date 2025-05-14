@@ -29,14 +29,14 @@ namespace BlockChainValleyFE
             LoadContent(new MemberManagementControl());
         }
 
-        private void btnManagePosts_Click(object sender, EventArgs e)
-        {
-            LoadContent(new PostManagementControl());
-        }
+        //private void btnManagePosts_Click(object sender, EventArgs e)
+        //{
+        //    LoadContent(new PostManagementControl());
+        //}
 
-        private void btnRegisterMember_Click(object sender, EventArgs e)
-        {
-            LoadContent(new MemberRegisterControl());
-        }
+        //private void btnRegisterMember_Click(object sender, EventArgs e)
+        //{
+        //    LoadContent(new MemberRegisterControl());
+        //}
     }
 }
