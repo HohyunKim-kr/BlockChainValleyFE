@@ -146,21 +146,15 @@ namespace BlockChainValleyFE
                             if (string.IsNullOrWhiteSpace(cellValue) || !IsValidRole(cellValue))
                                 continue;
 
-                            var originalMember = new MemberDto
+                            var updateDto = new
                             {
                                 Id = member.Id,
-                                Name = member.Name,
-                                PhoneNumber = member.PhoneNumber,
-                                TelegramHandle = member.TelegramHandle,
-                                TwitterHandle = member.TwitterHandle,
-                                WalletAddress = member.WalletAddress,
-                                //Password = member.Password,
                                 Role = ConvertRoleStringToInt(cellValue)
                             };
 
-                            var json = JsonConvert.SerializeObject(originalMember);
+                            var json = JsonConvert.SerializeObject(updateDto);
                             var content = new StringContent(json, Encoding.UTF8, "application/json");
-                            var res = await client.PutAsync($"http://localhost:5233/api/Members/{member.Id}", content);
+                            var res = await client.PutAsync($"http://localhost:5233/api/Members/{member.Id}/role", content);
 
                             if (!res.IsSuccessStatusCode)
                             {
@@ -169,11 +163,11 @@ namespace BlockChainValleyFE
                         }
                     }
 
-                    MessageBox.Show("저장 완료!");
+                    MessageBox.Show("역할 저장 완료!");
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("저장 실패: " + ex.Message);
+                    MessageBox.Show("저장 중 예외 발생: " + ex.Message);
                 }
             }
         }
